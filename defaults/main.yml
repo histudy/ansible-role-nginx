@@ -12,11 +12,7 @@ nginx_vhosts: []
 #       access_log: /var/log/nginx/access.log
 #       error_log: /var/log/nginx/error.log
 #       document_root: /var/www/html
-#       variables:
-#         var_name: var_value
 #       locations:
-#         - pattern: /
-#           content: "try_files $uri =404;"
 #         - pattern: "/\\.ht"
 #           match_type: "~"
 #           content: "deny all;"
@@ -46,8 +42,6 @@ nginx_vhosts: []
 #       document_root: /var/ssl_site
 #       client_max_body_size: 50M
 #       locations:
-#         - pattern: /
-#           content: "try_files $uri =404;"
 #         - pattern: "\\.php"
 #           match_type: "~"
 #           content: |
@@ -60,10 +54,9 @@ nginx_vhosts: []
 #         certificate: /path/to/cert.pem
 #         certificate_key:  /path/to/privkey.pem
 #         trusted_certificate: /path/to/chain.pem
-#         session:
-#           timeout: "1d"
-#           cache: "shared:SSL:50m"
-#           tickets: "off"
+#         session_timeout: "1d"
+#         session_cache: "shared:SSL:50m"
+#         session_tickets: no
 #         hsts: "max-age=15768000; includeSubDomains;"
 #         stapling: yes
 #         stapling_verify: yes
@@ -76,7 +69,6 @@ nginx_vhosts: []
 #           content: |
 #             proxy_pass	http://127.0.0.1:8080;
 #             include proxy_params;
-
 
 nginx_generate_dh_key: yes
 nginx_dh_key_bit: 2048
@@ -118,10 +110,9 @@ nginx_cfg:
         - ECDHE-RSA-AES128-SHA256
       # dhparam: "{{ nginx_dh_key_path }}"
       prefer_server_ciphers: yes
-      session:
-        timeout: "1d"
-        cache: "shared:SSL:50m"
-        tickets: no
+      session_timeout: "1d"
+      session_cache: "shared:SSL:50m"
+      session_tickets: no
       # hsts: "max-age={{ 60 * 60 * 24 * (365 / 2) }}; includeSubDomains;"
       stapling: yes
       stapling_verify: yes

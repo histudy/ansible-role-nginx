@@ -4,11 +4,11 @@
 {% endif -%}
 server {
     {% if item.ssl is undefined -%}
-    listen 80{% if item.default|default(false) %} default_server{% endif %};
-    listen [::]:80{% if item.default|default(false) %} default_server{% endif %};
+    listen 80{{ ' default_server' if item.default|default(false) else ''  }};
+    listen [::]:80{{ ' default_server' if item.default|default(false) else ''  }};
     {% else %}
-    listen 443 ssl http2{% if item.default|default(false) %} default_server{% endif %};
-    listen [::]:443 ssl http2{% if item.default|default(false) %} default_server{% endif %};
+    listen 443 ssl http2{{ ' default_server' if item.default|default(false) else ''  }};
+    listen [::]:443 ssl http2{{ ' default_server' if item.default|default(false) else ''  }};
     {% endif -%}
 
     {% if item.variables is defined -%}
@@ -17,11 +17,8 @@ server {
     {% endfor -%}
     {% endif -%}
 
-    {% if item.include is defined -%}
-    {% if item.include is string -%}
-    include {{ item.include }};
-    {% else -%}
-    {% for include_file in item.include -%}
+    {% if item.includes is defined -%}
+    {% for include_file in item.includes -%}
     include {{ include_file }};
     {% endfor -%}
     {% endif -%}
@@ -61,6 +58,7 @@ server {
     {% endif -%}
 
     {% if item.ssl is defined -%}
+    ssl on;
     # certs sent to the client in SERVER HELLO are concatenated in ssl_certificate
     ssl_certificate {{ item.ssl.certificate }};
     ssl_certificate_key {{ item.ssl.certificate_key }};
@@ -70,16 +68,24 @@ server {
     ssl_trusted_certificate {{ item.ssl.trusted_certificate }};
     {% endif -%}
 
-    {% if item.ssl.session is defined -%}
-    {% if item.ssl.session.timeout is defined -%}
-    ssl_session_timeout {{ item.ssl.session.timeout }};
+    {% if item.ssl.protocols is defined -%}
+    ssl_protocols {{ item.ssl.protocols|join(' ') }};
     {% endif -%}
-    {% if item.ssl.session.cache is defined -%}
-    ssl_session_cache {{ item.ssl.session.cache }};
+    {% if item.ssl.ciphers is defined -%}
+    ssl_ciphers "{{ item.ssl.ciphers|join(':') }}";
     {% endif -%}
-    {% if item.ssl.session.tickets is defined -%}
-    ssl_session_tickets {{ 'on' if item.ssl.session.tickets else 'off' }};
+    {% if item.ssl.prefer_server_ciphers is defined -%}
+    ssl_prefer_server_ciphers {{ 'on' if item.ssl.prefer_server_ciphers else 'off' }};
     {% endif -%}
+
+    {% if item.ssl.session_timeout is defined -%}
+    ssl_session_timeout {{ item.ssl.session_timeout }};
+    {% endif -%}
+    {% if item.ssl.session_cache is defined -%}
+    ssl_session_cache {{ item.ssl.session_cache }};
+    {% endif -%}
+    {% if item.ssl.session_tickets is defined -%}
+    ssl_session_tickets {{ 'on' if item.ssl.session_tickets else 'off' }};
     {% endif -%}
 
     {% if item.ssl.dhparam is defined -%}

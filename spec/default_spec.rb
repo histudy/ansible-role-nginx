@@ -35,22 +35,6 @@ describe service('nginx') do
   it { should be_running }
 end
 
-listening_http = listening_https = false
-property['nginx_vhosts'].each do |vhost|
-  if vhost.key?('ssl')
-    listening_https = true
-  else
-    listening_http = true
-  end
-end
-
-if listening_http
-  describe port('80') do
-    it { should be_listening }
-  end
-end
-if listening_https
-  describe port('443') do
-    it { should be_listening }
-  end
+describe port('80') do
+  it { should be_listening }
 end

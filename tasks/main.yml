@@ -23,7 +23,11 @@
     src: nginx.conf.j2
     dest: /etc/nginx/nginx.conf
   notify: restart nginx
-- name: create Diffie-Hellman key
+- name: generate OpenSSL Diffie-Hellman parameters
+  # Ansible 2.5 or later
+  # openssl_dhparam:
+  #   path: "{{ nginx_dh_key_path }}"
+  #   size: "{{ nginx_dh_key_bit }}"
   command: openssl dhparam -out {{ nginx_dh_key_path }} {{ nginx_dh_key_bit }}
   args:
     creates: "{{ nginx_dh_key_path }}"
