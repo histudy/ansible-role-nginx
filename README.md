@@ -73,6 +73,8 @@ serverディレクティブの内容を設定します。
 
 #### Example
 
+※以下、指定可能な全項目の設定例です
+
 ```yml
 nginx_vhosts:
   - name: default
