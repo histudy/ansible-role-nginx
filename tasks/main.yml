@@ -10,6 +10,7 @@
   file:
     path: /etc/nginx/{{ item }}
     state: directory
+    mode: "0755"
   with_items:
     - conf.d
     - snippets
@@ -21,6 +22,7 @@
   template:
     src: nginx.conf.j2
     dest: /etc/nginx/nginx.conf
+    mode: "0644"
   notify: restart nginx
 - name: generate OpenSSL Diffie-Hellman parameters
   openssl_dhparam:
@@ -31,24 +33,28 @@
   copy:
     src: "{{ item }}"
     dest: "/etc/nginx/snippets/{{ item|basename }}"
+    mode: "0644"
   with_fileglob: files/snippets/*.conf
   notify: reload nginx
 - name: create nginx extra config files
   template:
     src: "{{ item }}"
     dest: "/etc/nginx/conf.d/{{ item[:-3]|basename }}"
+    mode: "0644"
   with_fileglob: templates/conf/*.conf.j2
 - name: change extra config status
   file:
     path: "/etc/nginx/modules-enabled/{{ item.name }}.conf"
     src: "{{ '/etc/nginx/modules-available/' + item.name + '.conf' if item.state|default(true) else omit }}"
     state: "{{ 'link' if item.state|default(true) else 'absent' }}"
+    mode: "0644"
   with_items: "{{ nginx_modules }}"
   notify: restart nginx
 - name: create site config files
   template:
     src: vhost.j2
     dest: "/etc/nginx/sites-available/{{ item.name|default(item.server_name) }}"
+    mode: "0644"
   with_items: "{{ nginx_vhosts }}"
   notify: reload nginx
 - name: change site config
@@ -56,13 +62,14 @@
     path: /etc/nginx/sites-enabled/{{ item.name|default(item.server_name) }}
     src: "{{ '/etc/nginx/sites-available/' + item.name|default(item.server_name) if item.state|default(true) else omit }}"
     state: "{{ 'link' if item.state|default(true) else 'absent' }}"
+    mode: "0644"
   with_items: "{{ nginx_vhosts }}"
   notify: reload nginx
 - name: nginx is active and enabled on system startup
   service:
     name: nginx
     state: started
-    enabled: yes
+    enabled: true
 - name: allow http and https port
   ufw:
     rule: allow
